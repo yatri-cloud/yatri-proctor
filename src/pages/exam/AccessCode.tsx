@@ -10,56 +10,40 @@ export default function AccessCode() {
   const { dispatch } = useExamSession()
   const navigate = useNavigate()
   const reduceMotion = useReducedMotion()
-  const [digits, setDigits] = useState(['', '', '', '', '', ''])
+  const [codeVal, setCodeVal] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
-  useEffect(() => { inputRefs.current[0]?.focus() }, [])
+  useEffect(() => { inputRef.current?.focus() }, [])
 
-  const code = digits.join('')
-  const isComplete = code.length === 6 && /^\d{6}$/.test(code)
+  const cleanDigits = codeVal.replace(/\D/g, '').slice(0, 9)
 
-  function handleDigitChange(idx: number, val: string) {
-    const v = val.replace(/\D/g, '').slice(-1)
-    const next = [...digits]
-    next[idx] = v
-    setDigits(next)
+  const formatCode = (raw: string) => {
+    const d = raw.replace(/\D/g, '').slice(0, 9)
+    if (d.length <= 3) return d
+    if (d.length <= 6) return `${d.slice(0, 3)}-${d.slice(3)}`
+    return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError('')
-    if (v && idx < 5) inputRefs.current[idx + 1]?.focus()
-  }
-
-  function handleKeyDown(idx: number, e: React.KeyboardEvent) {
-    if (e.key === 'Backspace' && !digits[idx] && idx > 0) {
-      inputRefs.current[idx - 1]?.focus()
-    }
-    if (e.key === 'ArrowLeft' && idx > 0) inputRefs.current[idx - 1]?.focus()
-    if (e.key === 'ArrowRight' && idx < 5) inputRefs.current[idx + 1]?.focus()
-  }
-
-  function handlePaste(e: React.ClipboardEvent) {
-    e.preventDefault()
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
-    if (pasted.length) {
-      const next = pasted.split('').concat(Array(6).fill('')).slice(0, 6)
-      setDigits(next)
-      inputRefs.current[Math.min(pasted.length, 5)]?.focus()
-    }
+    setCodeVal(formatCode(e.target.value))
   }
 
   async function handleVerify() {
     setError('')
-    if (!isComplete) {
-      setError('Please enter all 6 digits of your access code.')
+    if (cleanDigits.length !== 6 && cleanDigits.length !== 9) {
+      setError('Please enter your 9-digit (e.g. 624-100-363) or 6-digit access code.')
       return
     }
     setLoading(true)
-    await new Promise(r => setTimeout(r, 800)) // simulate API
+    await new Promise(r => setTimeout(r, 600)) // simulate API
 
-    const session = validateAccessCode(code)
+    const session = validateAccessCode(codeVal) || validateAccessCode(cleanDigits)
     if (!session) {
       setLoading(false)
-      setError('Invalid or expired access code. Please check your booking confirmation and try again.')
+      setError('Invalid or expired access code. Please check your confirmation and try again.')
       return
     }
 
@@ -67,7 +51,7 @@ export default function AccessCode() {
     const sessionId = `sess_${Date.now()}`
     dispatch({
       type: 'SET_ACCESS_CODE',
-      code,
+      code: session.code || codeVal,
       name: session.candidateName,
       sessionId,
       token,
@@ -99,32 +83,29 @@ export default function AccessCode() {
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="rounded-2xl border border-border bg-card p-8 shadow-elevated">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <span className="step-pill mb-4 inline-flex">Step 1 of 19</span>
             <h2 className="font-display text-xl font-bold text-foreground">Enter Access Code</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Enter the 6-digit code from your exam booking confirmation.
+            <p className="mt-2 text-xs text-muted-foreground">
+              Enter your access code from your booking confirmation or desktop setup.
             </p>
           </div>
 
-          {/* Code input boxes */}
-          <div className="flex justify-center gap-2 mb-6" onPaste={handlePaste}>
-            {digits.map((digit, i) => (
-              <input
-                key={i}
-                ref={el => { inputRefs.current[i] = el }}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={e => handleDigitChange(i, e.target.value)}
-                onKeyDown={e => handleKeyDown(i, e)}
-                className={`w-11 h-13 text-center text-xl font-bold font-mono rounded-lg border-2 bg-background outline-none transition-all ${
-                  digit ? 'border-primary' : 'border-input'
-                } focus:border-primary focus:ring-2 focus:ring-ring/30`}
-                aria-label={`Digit ${i + 1}`}
-              />
-            ))}
+          {/* Single clean formatted input */}
+          <div className="mb-6 space-y-2">
+            <input
+              ref={inputRef}
+              type="text"
+              inputMode="numeric"
+              value={codeVal}
+              onChange={handleInputChange}
+              placeholder="624-100-363"
+              className="w-full py-3.5 px-4 text-center text-2xl font-mono font-bold tracking-widest rounded-xl border-2 border-slate-300 focus:border-[#0070E0] focus:ring-2 focus:ring-[#0070E0]/20 outline-none transition-all bg-slate-50"
+              aria-label="Access Code"
+            />
+            <p className="text-[11px] text-center text-muted-foreground">
+              Enter 9 digits (<code className="font-mono font-bold text-foreground">624-100-363</code>) or 6 digits (<code className="font-mono text-foreground">123456</code>)
+            </p>
           </div>
 
           {/* Error */}
@@ -140,16 +121,31 @@ export default function AccessCode() {
           )}
 
           <button
+            type="button"
             onClick={handleVerify}
-            disabled={loading}
+            disabled={loading || (cleanDigits.length !== 6 && cleanDigits.length !== 9)}
             className="w-full rounded-xl bg-[#0070E0] hover:bg-[#005bb8] px-6 py-3.5 text-xs font-bold text-white shadow-xs transition-colors disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed"
           >
             {loading ? 'Verifying Code...' : 'Verify Code'}
           </button>
 
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            Demo: try <code className="font-mono text-foreground">123456</code>
-          </p>
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCodeVal('624-100-363')}
+              className="text-[11px] font-medium text-[#0070E0] hover:underline"
+            >
+              Autofill 624-100-363
+            </button>
+            <span className="text-slate-300">•</span>
+            <button
+              type="button"
+              onClick={() => setCodeVal('123-456')}
+              className="text-[11px] font-medium text-slate-500 hover:underline"
+            >
+              Demo 123456
+            </button>
+          </div>
         </div>
       </motion.div>
     </div>

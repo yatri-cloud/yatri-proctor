@@ -22,7 +22,8 @@ export default function MobilePair() {
   const [desktopPreview, setDesktopPreview] = useState<string | null>(null)
 
   const token = session.mobileToken ?? `tok_${Date.now()}`
-  const mobileUrl = `${window.location.origin}/mobile/${token}`
+  const currentAccessCode = session.accessCode || '624-100-363'
+  const mobileUrl = `${window.location.origin}/mobile/${token}?code=${encodeURIComponent(currentAccessCode)}`
 
   // Real-time listener for mobile uploads
   useEffect(() => {
@@ -306,7 +307,12 @@ export default function MobilePair() {
               )}
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex flex-col items-center gap-2">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center space-y-0.5">
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Candidate Access Code</span>
+              <span className="font-mono text-xl font-bold text-slate-900 tracking-widest block">{currentAccessCode}</span>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 flex flex-col items-center gap-2">
               <p className="text-xs text-slate-500 text-center">
                 Scan with your phone camera, or open the companion URL directly:
               </p>

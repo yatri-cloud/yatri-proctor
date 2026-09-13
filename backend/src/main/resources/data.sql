@@ -4,7 +4,9 @@ VALUES
   (1, '123456', 'Yatharth Chauhan',  'AWS Certified Solutions Architect – Associate', 'SAA-C03', 65, 20, TIMESTAMPADD(YEAR, 2, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP),
   (2, '654321', 'Priya Sharma',       'AWS Certified Developer – Associate',            'DVA-C02', 65, 20, TIMESTAMPADD(YEAR, 2, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP),
   (3, '111222', 'Rahul Verma',        'AWS Certified Cloud Practitioner',               'CLF-C02', 65, 20, TIMESTAMPADD(YEAR, 2, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP),
-  (4, '999888', 'Anita Patel',        'Microsoft Azure Administrator',                  'AZ-104',  65, 20, TIMESTAMPADD(YEAR, 2, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP);
+  (4, '999888', 'Anita Patel',        'Microsoft Azure Administrator',                  'AZ-104',  65, 20, TIMESTAMPADD(YEAR, 2, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP),
+  (5, '624100363', 'Yatharth Chauhan', 'AWS Certified Solutions Architect – Associate', 'SAA-C03', 65, 20, TIMESTAMPADD(YEAR, 2, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP),
+  (6, '624-100-363', 'Yatharth Chauhan', 'AWS Certified Solutions Architect – Associate', 'SAA-C03', 65, 20, TIMESTAMPADD(YEAR, 2, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP);
 
 -- Seed questions
 INSERT INTO questions (id, topic, difficulty, question_text, option_a, option_b, option_c, option_d, correct_answer, explanation, created_at) VALUES
