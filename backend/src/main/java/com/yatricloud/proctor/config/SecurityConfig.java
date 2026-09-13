@@ -51,6 +51,7 @@ public class SecurityConfig {
                                 "/portal/**",
                                 "/mobile/**",
                                 "/simulation/**",
+                                "/api/v1/auth/**",
                                 "/api/v1/sessions/validate-code",
                                 "/api/v1/sessions/validate",
                                 "/api/v1/sessions/**",
@@ -86,5 +87,10 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    @Bean
+    public org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
+        return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
     }
 }

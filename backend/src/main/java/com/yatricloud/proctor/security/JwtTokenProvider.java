@@ -36,13 +36,40 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String generateUserToken(com.yatricloud.proctor.model.User user) {
+        return Jwts.builder()
+                .subject(String.valueOf(user.getId()))
+                .claim("userId", user.getId())
+                .claim("email", user.getEmail())
+                .claim("fullName", user.getFullName())
+                .claim("role", user.getRole().name())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(key())
+                .compact();
+    }
+
     public Long getSessionIdFromToken(String token) {
-        Claims claims = Jwts.parser()
+        Claims claims = getClaims(token);
+        return Long.valueOf(claims.getSubject());
+    }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = getClaims(token);
+        return Long.valueOf(claims.getSubject());
+    }
+
+    public String getEmailFromToken(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("email", String.class);
+    }
+
+    public Claims getClaims(String token) {
+        return Jwts.parser()
                 .verifyWith(key())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return Long.valueOf(claims.getSubject());
     }
 
     public boolean validateToken(String token) {

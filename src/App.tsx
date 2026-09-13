@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ExamSessionProvider } from '@/contexts/ExamSessionContext'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 // Portal
 const CandidatePortal = lazy(() => import('@/pages/portal/CandidatePortal'))
@@ -48,57 +49,59 @@ function PageLoader() {
 
 export default function App() {
   return (
-    <ExamSessionProvider>
-      <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Candidate Portal & Admin */}
-            <Route path="/" element={<CandidatePortal />} />
-            <Route path="/portal" element={<CandidatePortal />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+    <AuthProvider>
+      <ExamSessionProvider>
+        <BrowserRouter>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Candidate Portal & Admin */}
+              <Route path="/" element={<CandidatePortal />} />
+              <Route path="/portal" element={<CandidatePortal />} />
+              <Route path="/admin" element={<AdminDashboard />} />
 
-            {/* Exact Diagnostic & Simulation Flow (matches docs/requirements/ui 3.png - 18.png) */}
-            <Route path="/exam" element={<UnlockOnVue />} />
-            <Route path="/exam/unlock" element={<UnlockOnVue />} />
-            <Route path="/exam/equipment" element={<EquipmentChecks />} />
-            <Route path="/exam/network" element={<NetworkCheck />} />
-            <Route path="/exam/download" element={<ExamDownload />} />
-            <Route path="/exam/secure-browser" element={<SecureBrowserCheck />} />
-            <Route path="/exam/video-streaming" element={<VideoStreamingCheck />} />
-            <Route path="/exam/simulation-ready" element={<SimulationReady />} />
-            <Route path="/exam/simulation-runner" element={<SimulationRunner />} />
-            <Route path="/exam/completed" element={<SystemTestComplete />} />
+              {/* Exact Diagnostic & Simulation Flow (matches docs/requirements/ui 3.png - 18.png) */}
+              <Route path="/exam" element={<UnlockOnVue />} />
+              <Route path="/exam/unlock" element={<UnlockOnVue />} />
+              <Route path="/exam/equipment" element={<EquipmentChecks />} />
+              <Route path="/exam/network" element={<NetworkCheck />} />
+              <Route path="/exam/download" element={<ExamDownload />} />
+              <Route path="/exam/secure-browser" element={<SecureBrowserCheck />} />
+              <Route path="/exam/video-streaming" element={<VideoStreamingCheck />} />
+              <Route path="/exam/simulation-ready" element={<SimulationReady />} />
+              <Route path="/exam/simulation-runner" element={<SimulationRunner />} />
+              <Route path="/exam/completed" element={<SystemTestComplete />} />
 
-            {/* Aliases for compatibility */}
-            <Route path="/onvue/unlock" element={<UnlockOnVue />} />
-            <Route path="/onvue/equipment" element={<EquipmentChecks />} />
-            <Route path="/onvue/network" element={<NetworkCheck />} />
-            <Route path="/onvue/download" element={<ExamDownload />} />
-            <Route path="/onvue/secure-browser" element={<SecureBrowserCheck />} />
-            <Route path="/onvue/video-streaming" element={<VideoStreamingCheck />} />
-            <Route path="/onvue/simulation-ready" element={<SimulationReady />} />
-            <Route path="/onvue/simulation-runner" element={<SimulationRunner />} />
-            <Route path="/onvue/completed" element={<SystemTestComplete />} />
+              {/* Aliases for compatibility */}
+              <Route path="/onvue/unlock" element={<UnlockOnVue />} />
+              <Route path="/onvue/equipment" element={<EquipmentChecks />} />
+              <Route path="/onvue/network" element={<NetworkCheck />} />
+              <Route path="/onvue/download" element={<ExamDownload />} />
+              <Route path="/onvue/secure-browser" element={<SecureBrowserCheck />} />
+              <Route path="/onvue/video-streaming" element={<VideoStreamingCheck />} />
+              <Route path="/onvue/simulation-ready" element={<SimulationReady />} />
+              <Route path="/onvue/simulation-runner" element={<SimulationRunner />} />
+              <Route path="/onvue/completed" element={<SystemTestComplete />} />
 
-            {/* Exam Day Check-in & Certification Engine */}
-            <Route path="/exam/mobile-pair" element={<MobilePair />} />
-            <Route path="/exam/environment" element={<Environment />} />
-            <Route path="/exam/terms" element={<Terms />} />
-            <Route path="/exam/session" element={<Session />} />
-            <Route path="/exam/results" element={<Results />} />
+              {/* Exam Day Check-in & Certification Engine */}
+              <Route path="/exam/mobile-pair" element={<MobilePair />} />
+              <Route path="/exam/environment" element={<Environment />} />
+              <Route path="/exam/terms" element={<Terms />} />
+              <Route path="/exam/session" element={<Session />} />
+              <Route path="/exam/results" element={<Results />} />
 
-            {/* Mobile Companion PWA flow */}
-            <Route path="/mobile/:token" element={<MobileEntry />} />
-            <Route path="/mobile/photo" element={<PersonPhoto />} />
-            <Route path="/mobile/room-scan" element={<RoomScan />} />
-            <Route path="/mobile/id-country" element={<IdCountry />} />
-            <Route path="/mobile/id-capture" element={<IdCapture />} />
-            <Route path="/mobile/done" element={<MobileDone />} />
+              {/* Mobile Companion PWA flow */}
+              <Route path="/mobile/:token" element={<MobileEntry />} />
+              <Route path="/mobile/photo" element={<PersonPhoto />} />
+              <Route path="/mobile/room-scan" element={<RoomScan />} />
+              <Route path="/mobile/id-country" element={<IdCountry />} />
+              <Route path="/mobile/id-capture" element={<IdCapture />} />
+              <Route path="/mobile/done" element={<MobileDone />} />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-    </ExamSessionProvider>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </ExamSessionProvider>
+    </AuthProvider>
   )
 }

@@ -226,4 +226,101 @@ public class AdminDTOs {
         public double getPassRatePercent() { return passRatePercent; }
         public void setPassRatePercent(double passRatePercent) { this.passRatePercent = passRatePercent; }
     }
+
+    public static class UpdateAccessCodeRequest {
+        private String code;
+        private String candidateName;
+        private String candidateEmail;
+        private String examTitle;
+        private String examCode;
+        private Integer durationMinutes;
+        private Integer questionCount;
+
+        public String getCode() { return code; }
+        public void setCode(String code) { this.code = code; }
+        public String getCandidateName() { return candidateName; }
+        public void setCandidateName(String candidateName) { this.candidateName = candidateName; }
+        public String getCandidateEmail() { return candidateEmail; }
+        public void setCandidateEmail(String candidateEmail) { this.candidateEmail = candidateEmail; }
+        public String getExamTitle() { return examTitle; }
+        public void setExamTitle(String examTitle) { this.examTitle = examTitle; }
+        public String getExamCode() { return examCode; }
+        public void setExamCode(String examCode) { this.examCode = examCode; }
+        public Integer getDurationMinutes() { return durationMinutes; }
+        public void setDurationMinutes(Integer durationMinutes) { this.durationMinutes = durationMinutes; }
+        public Integer getQuestionCount() { return questionCount; }
+        public void setQuestionCount(Integer questionCount) { this.questionCount = questionCount; }
+    }
+
+    public static class UpdateQuestionRequest {
+        private String topic;
+        private String difficulty;
+        private String questionText;
+        private String optionA;
+        private String optionB;
+        private String optionC;
+        private String optionD;
+        private String correctAnswer;
+        private String explanation;
+
+        public String getTopic() { return topic; }
+        public void setTopic(String topic) { this.topic = topic; }
+        public String getDifficulty() { return difficulty; }
+        public void setDifficulty(String difficulty) { this.difficulty = difficulty; }
+        public String getQuestionText() { return questionText; }
+        public void setQuestionText(String questionText) { this.questionText = questionText; }
+        public String getOptionA() { return optionA; }
+        public void setOptionA(String optionA) { this.optionA = optionA; }
+        public String getOptionB() { return optionB; }
+        public void setOptionB(String optionB) { this.optionB = optionB; }
+        public String getOptionC() { return optionC; }
+        public void setOptionC(String optionC) { this.optionC = optionC; }
+        public String getOptionD() { return optionD; }
+        public void setOptionD(String optionD) { this.optionD = optionD; }
+        public String getCorrectAnswer() { return correctAnswer; }
+        public void setCorrectAnswer(String correctAnswer) { this.correctAnswer = correctAnswer; }
+        public String getExplanation() { return explanation; }
+        public void setExplanation(String explanation) { this.explanation = explanation; }
+    }
+
+    public static class CreateUserRequest {
+        private String email;
+        private String password;
+        private String fullName;
+        private String role;
+        private String phoneNumber;
+        private String country;
+
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        public String getPassword() { return password; }
+        public void setPassword(String password) { this.password = password; }
+        public String getFullName() { return fullName; }
+        public void setFullName(String fullName) { this.fullName = fullName; }
+        public String getRole() { return role; }
+        public void setRole(String role) { this.role = role; }
+        public String getPhoneNumber() { return phoneNumber; }
+        public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+        public String getCountry() { return country; }
+        public void setCountry(String country) { this.country = country; }
+    }
+
+    public static class UpdateUserRequest {
+        private String fullName;
+        private String role;
+        private String phoneNumber;
+        private String country;
+        private Boolean active;
+
+        public String getFullName() { return fullName; }
+        public void setFullName(String fullName) { this.fullName = fullName; }
+        public String getRole() { return role; }
+        public void setRole(String role) { this.role = role; }
+        public String getPhoneNumber() { return phoneNumber; }
+        public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+        public String getCountry() { return country; }
+        public void setCountry(String country) { this.country = country; }
+        public Boolean getActive() { return active; }
+        public void setActive(Boolean active) { this.active = active; }
+    }
 }

@@ -13,7 +13,8 @@ import {
   Key,
   GraduationCap,
   LogOut,
-  ExternalLink
+  ExternalLink,
+  UserCheck
 } from 'lucide-react'
 
 interface AdminLayoutProps {
@@ -54,6 +55,7 @@ export default function AdminLayout({
     proctoring: true,
     accessCodes: true,
     questions: true,
+    users: true,
   })
 
   const toggleGroup = (key: string) => {
@@ -67,6 +69,7 @@ export default function AdminLayout({
       case 'flagged': return 'Flagged Sessions'
       case 'access-codes': return 'Access Codes'
       case 'questions': return 'Question Bank'
+      case 'users': return 'User Management'
       default: return 'Overview'
     }
   }
@@ -143,6 +146,18 @@ export default function AdminLayout({
           }`}
         >
           <GraduationCap className="w-5 h-5" />
+        </button>
+
+        <button
+          onClick={() => onTabChange('users')}
+          title="User Accounts"
+          className={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors focus-visible:outline-none ${
+            currentTab === 'users'
+              ? 'bg-[#0070E0] text-white shadow-xs'
+              : 'text-slate-400 hover:bg-slate-100 hover:text-slate-800'
+          }`}
+        >
+          <UserCheck className="w-5 h-5" />
         </button>
       </nav>
 
@@ -310,6 +325,36 @@ export default function AdminLayout({
                     }`}
                   >
                     Catalog
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Users Group */}
+            <div>
+              <button
+                onClick={() => toggleGroup('users')}
+                className="w-full flex items-center justify-between min-h-[40px] px-4 py-2 rounded-xl text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors"
+              >
+                <span>Users & Candidates</span>
+                {openGroups.users ? (
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                ) : (
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+                )}
+              </button>
+
+              {openGroups.users && (
+                <div className="ml-3 pl-3 border-l-2 border-slate-200 space-y-1 pt-1">
+                  <button
+                    onClick={() => { onTabChange('users'); setMobileOpen(false) }}
+                    className={`w-full text-left px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                      currentTab === 'users'
+                        ? 'bg-[#0070E0] text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    User Accounts
                   </button>
                 </div>
               )}

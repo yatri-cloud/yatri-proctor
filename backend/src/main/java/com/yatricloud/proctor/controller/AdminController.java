@@ -54,6 +54,13 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("status", "SENT"));
     }
 
+    @DeleteMapping("/sessions/{id}")
+    @Operation(summary = "Delete an exam session")
+    public ResponseEntity<Map<String, String>> deleteSession(@PathVariable Long id) {
+        adminService.deleteSession(id);
+        return ResponseEntity.ok(Map.of("status", "DELETED", "id", String.valueOf(id)));
+    }
+
     @GetMapping("/access-codes")
     @Operation(summary = "List all candidate access codes")
     public ResponseEntity<List<AccessCode>> getAccessCodes() {
@@ -66,6 +73,21 @@ public class AdminController {
         return ResponseEntity.ok(adminService.createAccessCode(request));
     }
 
+    @PutMapping("/access-codes/{id}")
+    @Operation(summary = "Update an existing candidate access code")
+    public ResponseEntity<AccessCode> updateAccessCode(
+            @PathVariable Long id,
+            @RequestBody AdminDTOs.UpdateAccessCodeRequest request) {
+        return ResponseEntity.ok(adminService.updateAccessCode(id, request));
+    }
+
+    @DeleteMapping("/access-codes/{id}")
+    @Operation(summary = "Delete/revoke a candidate access code")
+    public ResponseEntity<Map<String, String>> deleteAccessCode(@PathVariable Long id) {
+        adminService.deleteAccessCode(id);
+        return ResponseEntity.ok(Map.of("status", "DELETED", "id", String.valueOf(id)));
+    }
+
     @GetMapping("/questions")
     @Operation(summary = "List all questions in question bank")
     public ResponseEntity<List<Question>> getQuestions() {
@@ -76,6 +98,51 @@ public class AdminController {
     @Operation(summary = "Add a question to the question bank")
     public ResponseEntity<Question> createQuestion(@RequestBody AdminDTOs.CreateQuestionRequest request) {
         return ResponseEntity.ok(adminService.createQuestion(request));
+    }
+
+    @PutMapping("/questions/{id}")
+    @Operation(summary = "Update a question in the question bank")
+    public ResponseEntity<Question> updateQuestion(
+            @PathVariable Long id,
+            @RequestBody AdminDTOs.UpdateQuestionRequest request) {
+        return ResponseEntity.ok(adminService.updateQuestion(id, request));
+    }
+
+    @DeleteMapping("/questions/{id}")
+    @Operation(summary = "Delete a question from the question bank")
+    public ResponseEntity<Map<String, String>> deleteQuestion(@PathVariable Long id) {
+        adminService.deleteQuestion(id);
+        return ResponseEntity.ok(Map.of("status", "DELETED", "id", String.valueOf(id)));
+    }
+
+    // ── User Management ──────────────────────────────────────────────────
+
+    @GetMapping("/users")
+    @Operation(summary = "List all registered users and candidates")
+    public ResponseEntity<List<com.yatricloud.proctor.dto.AuthDTOs.UserProfileDto>> getUsers() {
+        return ResponseEntity.ok(adminService.getAllUsers());
+    }
+
+    @PostMapping("/users")
+    @Operation(summary = "Create a new user/candidate account")
+    public ResponseEntity<com.yatricloud.proctor.dto.AuthDTOs.UserProfileDto> createUser(
+            @RequestBody AdminDTOs.CreateUserRequest request) {
+        return ResponseEntity.ok(adminService.createUser(request));
+    }
+
+    @PutMapping("/users/{id}")
+    @Operation(summary = "Update user details or role")
+    public ResponseEntity<com.yatricloud.proctor.dto.AuthDTOs.UserProfileDto> updateUser(
+            @PathVariable Long id,
+            @RequestBody AdminDTOs.UpdateUserRequest request) {
+        return ResponseEntity.ok(adminService.updateUser(id, request));
+    }
+
+    @DeleteMapping("/users/{id}")
+    @Operation(summary = "Delete a user account")
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
+        adminService.deleteUser(id);
+        return ResponseEntity.ok(Map.of("status", "DELETED", "id", String.valueOf(id)));
     }
 
     @GetMapping("/stats")
