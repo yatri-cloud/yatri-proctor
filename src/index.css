@@ -1,0 +1,310 @@
+/* Self-hosted variable fonts (mirrored from yatri-practice-hub) */
+@font-face {
+  font-family: 'Inter Tight Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(/fonts/inter-tight-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Inter Tight Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(/fonts/inter-tight-latin-ext-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Bricolage Grotesque Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url(/fonts/bricolage-grotesque-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Bricolage Grotesque Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url(/fonts/bricolage-grotesque-latin-ext-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   Yatri Proctor Design System
+   Single fixed light theme — white canvas + #007CFF blue
+   Mirrors yatri-practice-hub/src/index.css token names
+   ============================================================ */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 9%;
+
+    --popover: 0 0% 98%;
+    --popover-foreground: 0 0% 9%;
+
+    /* Interactive fills at 44% → white text passes WCAG AA 4.78:1 */
+    --primary: 210 100% 44%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 38%;
+
+    --accent: 210 100% 96%;
+    --accent-foreground: 210 100% 32%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 210 100% 50%;
+    --radius: 0.75rem;
+
+    /* Brand blue scale (hue 210) */
+    --blue-50: 210 100% 97%;
+    --blue-100: 210 100% 93%;
+    --blue-200: 210 100% 85%;
+    --blue-300: 210 100% 74%;
+    --blue-400: 210 100% 62%;
+    --blue-500: 210 100% 50%;
+    --blue-600: 210 100% 44%;
+    --blue-700: 212 100% 38%;
+    --blue-800: 214 95% 30%;
+    --blue-900: 216 90% 22%;
+
+    /* Section background bands */
+    --band-tint: 210 100% 97%;
+    --band-blue: 210 100% 50%;
+
+    /* Display font */
+    --font-display: 'Bricolage Grotesque Variable', 'Inter Tight Variable', system-ui, sans-serif;
+
+    /* Gradients & glows */
+    --gradient-blue: linear-gradient(135deg, hsl(210 100% 50%), hsl(200 100% 55%));
+    --glow-blue: 0 0 60px hsl(210 100% 50% / 0.2);
+    --glow-soft: 0 0 40px hsl(210 100% 50% / 0.1);
+
+    /* Elevation scale */
+    --shadow-inset: inset 0 0.5px 0 hsl(0 0% 100% / 0.25), inset 0 0 0 0.5px hsl(0 0% 0% / 0.2), 0 1px 2px hsl(0 0% 0% / 0.08);
+    --shadow-card: 0 4px 16px hsl(0 0% 0% / 0.06);
+    --shadow-elevated: 0 12px 32px hsl(0 0% 0% / 0.10);
+    --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.35);
+
+    /* Motion tokens */
+    --dur-fast: 150ms;
+    --dur-base: 220ms;
+    --dur-slow: 360ms;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+    /* Status */
+    --success: 152 60% 42%;
+    --warning: 38 92% 50%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+
+  html { scroll-behavior: smooth; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter Tight Variable', 'Inter Tight', sans-serif;
+    overflow-y: auto;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight text-foreground;
+  }
+  h1 { @apply text-3xl md:text-4xl font-bold; }
+  h2 { @apply text-2xl md:text-3xl font-bold; }
+  h3 { @apply text-xl md:text-2xl font-semibold; }
+  h4 { @apply text-lg md:text-xl font-semibold; }
+  h5 { @apply text-base font-semibold; }
+  h6 { @apply text-sm font-semibold uppercase tracking-wider text-muted-foreground; }
+}
+
+@layer components {
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(210 100% 50%), hsl(200 100% 55%));
+  }
+
+  /* Glass nav */
+  .glass-nav {
+    background-color: hsl(var(--background) / 0.82);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  /* Section bands */
+  .band-tint { background-color: hsl(var(--band-tint)); }
+  .band-blue {
+    background-color: hsl(var(--band-blue));
+    color: hsl(0 0% 100%);
+  }
+  .band-blue h1, .band-blue h2, .band-blue h3,
+  .band-blue h4, .band-blue h5, .band-blue h6 { color: #ffffff; }
+
+  /* Display type */
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Tactile button shadow */
+  .shadow-inset-btn { box-shadow: var(--shadow-inset); }
+
+  /* Scrollbar hide */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  /* Step indicator pill */
+  .step-pill {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground
+           bg-muted border border-border rounded-full px-3 py-1;
+  }
+
+  /* Glow variants */
+  .glow-blue { box-shadow: var(--glow-blue); }
+  .glow-soft { box-shadow: var(--glow-soft); }
+
+  /* Pass / fail status badges */
+  .badge-pass {
+    @apply inline-flex items-center gap-1 text-xs font-medium rounded-full px-2.5 py-0.5;
+    background: hsl(152 60% 42% / 0.1);
+    color: hsl(152 60% 32%);
+    border: 1px solid hsl(152 60% 42% / 0.2);
+  }
+  .badge-fail {
+    @apply inline-flex items-center gap-1 text-xs font-medium rounded-full px-2.5 py-0.5;
+    background: hsl(0 84% 60% / 0.1);
+    color: hsl(0 72% 40%);
+    border: 1px solid hsl(0 84% 60% / 0.2);
+  }
+  .badge-pending {
+    @apply inline-flex items-center gap-1 text-xs font-medium rounded-full px-2.5 py-0.5;
+    background: hsl(38 92% 50% / 0.1);
+    color: hsl(38 80% 35%);
+    border: 1px solid hsl(38 92% 50% / 0.2);
+  }
+
+  /* Webcam preview frame */
+  .webcam-frame {
+    @apply relative overflow-hidden rounded-xl border-2 border-primary/30
+           bg-muted aspect-video w-full max-w-md mx-auto;
+  }
+
+  /* Camera capture overlay */
+  .capture-oval {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .capture-oval::after {
+    content: '';
+    width: 60%;
+    height: 80%;
+    border: 2px dashed hsl(var(--primary) / 0.5);
+    border-radius: 50%;
+  }
+
+  /* Waveform bars */
+  @keyframes waveform-pulse {
+    0%, 100% { transform: scaleY(0.3); }
+    50% { transform: scaleY(1); }
+  }
+  .waveform-bar {
+    width: 3px;
+    border-radius: 2px;
+    background: hsl(var(--primary));
+    animation: waveform-pulse 0.8s ease-in-out infinite;
+    transform-origin: bottom;
+  }
+
+  /* Animated check mark for completed items */
+  @keyframes check-pop {
+    0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+    70% { transform: scale(1.2) rotate(5deg); }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  .check-pop { animation: check-pop 0.4s var(--ease-out) both; }
+
+  /* Pulsing connection dot */
+  @keyframes ping-slow {
+    75%, 100% { transform: scale(2); opacity: 0; }
+  }
+  .ping-slow { animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+  /* Shimmer for loading states */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--border)) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+  }
+
+  /* Marquee for landing page */
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee { animation: marquee 30s linear infinite; }
+  .animate-marquee-slow { animation: marquee 45s linear infinite; }
+
+  /* Float */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .animate-float { animation: float 3s ease-in-out infinite; }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+}

@@ -1,0 +1,33 @@
+# Node / Frontend
+node_modules/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+vite.log
+
+# Java / Maven / Backend
+backend/target/
+backend/src/main/resources/static/
+*.class
+*.jar
+*.war
+
+# Large binaries & docs
+docs/
+*.dmg
+*.zip
+*.pkg
+*.iso
+*.tar.gz
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

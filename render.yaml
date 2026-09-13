@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: yatri-proctor
+    runtime: docker
+    plan: starter
+    region: oregon
+    branch: main
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: PORT
+        value: 10000
