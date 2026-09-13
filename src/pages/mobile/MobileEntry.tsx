@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
 import { CheckCircle2, QrCode, ArrowRight, ShieldCheck } from 'lucide-react'
 import { validateAccessCode } from '@/data/mock-sessions'
-import { updateCheckinVerification } from '@/utils/checkinSync'
+import { updateCheckinVerification, setActiveMobileToken } from '@/utils/checkinSync'
 import { getApiBaseUrl } from '@/utils/apiConfig'
 
 export default function MobileEntry() {
@@ -64,11 +64,15 @@ export default function MobileEntry() {
         return
       }
 
-      updateCheckinVerification({ mobileConnected: true })
+      if (token) {
+        setActiveMobileToken(token)
+      }
+      updateCheckinVerification({ mobileConnected: true }, token)
       navigate('/mobile/photo')
     } catch (err) {
       // Even if network blips, allow candidate to proceed with pairing
-      updateCheckinVerification({ mobileConnected: true })
+      if (token) setActiveMobileToken(token)
+      updateCheckinVerification({ mobileConnected: true }, token)
       navigate('/mobile/photo')
     } finally {
       setLoading(false)

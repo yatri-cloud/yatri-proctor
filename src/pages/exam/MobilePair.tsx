@@ -1,10 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import QRCode from 'qrcode.react'
-import { CheckCircle2, QrCode, Laptop, Camera } from 'lucide-react'
+import { CheckCircle2, QrCode, Laptop, Camera, RefreshCw, AlertCircle } from 'lucide-react'
 import ProctorLayout from '@/components/ProctorLayout'
 import { useExamSession } from '@/contexts/ExamSessionContext'
-import { getCheckinVerification, updateCheckinVerification, CheckinVerification } from '@/utils/checkinSync'
+import {
+  getCheckinVerification,
+  updateCheckinVerification,
+  fetchRemoteCheckinVerification,
+  setActiveMobileToken,
+  CheckinVerification
+} from '@/utils/checkinSync'
 
 export default function MobilePair() {
   const { session, dispatch } = useExamSession()
@@ -13,6 +19,8 @@ export default function MobilePair() {
   const [verification, setVerification] = useState<CheckinVerification>(getCheckinVerification())
   const [qrExpiry, setQrExpiry] = useState(300)
   const [regenerated, setRegenerated] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
+  const [refreshNotice, setRefreshNotice] = useState<{ type: 'success' | 'warning' | 'error'; message: string } | null>(null)
 
   // Direct webcam verification state (fallback if candidate has no smartphone)
   const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -21,9 +29,29 @@ export default function MobilePair() {
   const [webcamStream, setWebcamStream] = useState<MediaStream | null>(null)
   const [desktopPreview, setDesktopPreview] = useState<string | null>(null)
 
-  const token = session.mobileToken ?? `tok_${Date.now()}`
+  const [token] = useState(() => session.mobileToken || localStorage.getItem('yatri_active_mobile_token') || `tok_${Date.now()}`)
   const currentAccessCode = session.accessCode || '624-100-363'
   const mobileUrl = `${window.location.origin}/mobile/${token}?code=${encodeURIComponent(currentAccessCode)}`
+
+  useEffect(() => {
+    setActiveMobileToken(token)
+  }, [token])
+
+  const hasHeadshot = Boolean(verification.headshotPhoto)
+  const roomCount = Object.keys(verification.roomScans || {}).length
+  const hasAllRooms = Boolean(
+    verification.roomScans?.front &&
+    verification.roomScans?.right &&
+    verification.roomScans?.back &&
+    verification.roomScans?.left
+  )
+  const hasId = Boolean(verification.idFront && verification.idBack)
+  const allVerified = Boolean(hasHeadshot && hasAllRooms && hasId)
+
+  // STRICT REQUIREMENT: Only allow proceed if ALL required items are uploaded!
+  const canProceed = verificationMode === 'mobile'
+    ? allVerified
+    : Boolean(desktopStep === 'all_done' && allVerified)
 
   // Real-time listener for mobile uploads
   useEffect(() => {
@@ -33,16 +61,73 @@ export default function MobilePair() {
     window.addEventListener('storage', handleUpdate)
     window.addEventListener('yatri_checkin_update', handleUpdate)
 
-    const pollInterval = setInterval(() => {
-      setVerification(getCheckinVerification())
-    }, 800)
+    // Poll backend every 2s for cross-device mobile upload sync
+    const pollInterval = setInterval(async () => {
+      if (verificationMode === 'mobile' && !allVerified) {
+        try {
+          const remote = await fetchRemoteCheckinVerification(token)
+          setVerification(remote)
+        } catch {}
+      }
+    }, 2000)
+
+    // Initial check on load
+    fetchRemoteCheckinVerification(token).then(v => setVerification(v)).catch(() => {})
 
     return () => {
       window.removeEventListener('storage', handleUpdate)
       window.removeEventListener('yatri_checkin_update', handleUpdate)
       clearInterval(pollInterval)
     }
-  }, [])
+  }, [token, verificationMode, allVerified])
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    setRefreshNotice(null)
+    try {
+      const latest = await fetchRemoteCheckinVerification(token)
+      setVerification(latest)
+
+      const hs = Boolean(latest.headshotPhoto)
+      const allR = Boolean(
+        latest.roomScans?.front &&
+        latest.roomScans?.right &&
+        latest.roomScans?.back &&
+        latest.roomScans?.left
+      )
+      const id = Boolean(latest.idFront && latest.idBack)
+
+      if (hs && allR && id) {
+        setRefreshNotice({
+          type: 'success',
+          message: 'All verification items received and verified! You can now proceed.'
+        })
+      } else {
+        const missing: string[] = []
+        if (!hs) missing.push('Headshot Photo')
+        if (!allR) {
+          const count = Object.keys(latest.roomScans || {}).length
+          missing.push(`Room Scan (${count}/4 angles)`)
+        }
+        if (!id) {
+          if (!latest.idFront && !latest.idBack) missing.push('ID Front & Back')
+          else if (!latest.idFront) missing.push('ID Front')
+          else missing.push('ID Back')
+        }
+        setRefreshNotice({
+          type: 'warning',
+          message: `Incomplete submission. Still needed on mobile: ${missing.join(', ')}. Please complete all scans on your phone.`
+        })
+      }
+    } catch {
+      setRefreshNotice({
+        type: 'warning',
+        message: 'Could not fetch remote verification status. Please make sure photos are submitted.'
+      })
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   // QR Expiry countdown
   useEffect(() => {
@@ -165,19 +250,15 @@ export default function MobilePair() {
   const secs = qrExpiry % 60
   const expired = qrExpiry === 0
 
-  const hasHeadshot = Boolean(verification.headshotPhoto)
-  const roomCount = Object.keys(verification.roomScans || {}).length
-  const hasAllRooms = Boolean(
-    verification.roomScans.front &&
-    verification.roomScans.right &&
-    verification.roomScans.back &&
-    verification.roomScans.left
-  )
-  const hasId = Boolean(verification.idFront && verification.idBack)
-  const allVerified = hasHeadshot && hasAllRooms && hasId
-  const canProceed = Boolean(hasHeadshot || roomCount > 0 || verification.completed || allVerified || desktopStep === 'all_done')
-
   const handleNext = () => {
+    if (!canProceed) {
+      setRefreshNotice({
+        type: 'error',
+        message: 'Cannot proceed: Incomplete verification. You must submit your headshot photo, all 4 room scan angles, and both ID sides before continuing.'
+      })
+      return
+    }
+
     updateCheckinVerification({
       completed: true,
       headshotPhoto: verification.headshotPhoto || desktopPreview || 'verified_headshot',
@@ -198,7 +279,7 @@ export default function MobilePair() {
       hideProgress
       onPrevious={() => navigate('/exam/completed')}
       onNext={handleNext}
-      nextLabel={canProceed ? 'Continue to Environment Checklist' : 'Capture Scans to Continue'}
+      nextLabel={canProceed ? 'Continue to Environment Checklist →' : 'Complete All Scans to Continue'}
       disableNext={!canProceed}
       maxWidth="3xl"
     >
@@ -231,6 +312,24 @@ export default function MobilePair() {
             <Laptop className="w-4 h-4" />
             <span>Verify on this Laptop / Webcam</span>
           </button>
+        </div>
+
+        {/* Verification Checklist Header & Refresh Button */}
+        <div className="flex items-center justify-between max-w-2xl mx-auto px-1">
+          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+            Required Verification Items
+          </span>
+          {verificationMode === 'mobile' && (
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs transition-all disabled:opacity-60 cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-[#0070E0] ${refreshing ? 'animate-spin' : ''}`} />
+              <span>{refreshing ? 'Checking uploads...' : 'Refresh Status'}</span>
+            </button>
+          )}
         </div>
 
         {/* Verification Checklist Grid */}
@@ -276,6 +375,24 @@ export default function MobilePair() {
           </div>
         </div>
 
+        {/* Status / Feedback Banner */}
+        {refreshNotice && (
+          <div className={`max-w-2xl mx-auto p-3.5 rounded-xl border text-xs font-medium flex items-center gap-2.5 ${
+            refreshNotice.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : refreshNotice.type === 'error'
+              ? 'bg-rose-50 border-rose-200 text-rose-800'
+              : 'bg-amber-50 border-amber-200 text-amber-800'
+          }`}>
+            {refreshNotice.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 flex-shrink-0 text-amber-600" />
+            )}
+            <div className="flex-1">{refreshNotice.message}</div>
+          </div>
+        )}
+
         {/* MODE 1: MOBILE QR CODE */}
         {verificationMode === 'mobile' && (
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs max-w-md mx-auto space-y-4">
@@ -312,26 +429,47 @@ export default function MobilePair() {
               <span className="font-mono text-xl font-bold text-slate-900 tracking-widest block">{currentAccessCode}</span>
             </div>
 
-            <div className="pt-2 border-t border-slate-100 flex flex-col items-center gap-2">
+            <div className="pt-2 border-t border-slate-100 flex flex-col items-center gap-2.5">
               <p className="text-xs text-slate-500 text-center">
                 Scan with your phone camera, or open the companion URL directly:
               </p>
-              <a
-                href={mobileUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-block px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-xs font-semibold shadow-xs transition-colors"
-              >
-                Open Mobile Web Companion App
-              </a>
-              {canProceed && (
+
+              <div className="flex items-center gap-2 w-full">
+                <a
+                  href={mobileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex-1 text-center py-2.5 px-3 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-xs font-semibold shadow-xs transition-colors"
+                >
+                  Open Mobile Companion
+                </a>
+                <button
+                  type="button"
+                  onClick={handleRefresh}
+                  disabled={refreshing}
+                  className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                  title="Check if mobile photos are uploaded"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-[#0070E0] ${refreshing ? 'animate-spin' : ''}`} />
+                  <span>{refreshing ? 'Checking...' : 'Refresh'}</span>
+                </button>
+              </div>
+
+              {canProceed ? (
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="w-full mt-2 py-2.5 bg-[#0070E0] hover:bg-[#005bb8] text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
+                  className="w-full mt-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-1.5"
                 >
-                  Continue to Environment Checklist →
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>All Scans Uploaded — Continue to Environment Checklist →</span>
                 </button>
+              ) : (
+                <div className="w-full py-2.5 px-3 bg-slate-50 rounded-xl text-[11px] font-medium text-slate-500 text-center border border-slate-200">
+                  {roomCount > 0 || hasHeadshot || verification.idFront
+                    ? `Upload in progress (${[hasHeadshot && 'Headshot ✓', roomCount > 0 && `${roomCount}/4 Rooms`, verification.idFront && 'ID Front ✓', verification.idBack && 'ID Back ✓'].filter(Boolean).join(', ')}). Finish remaining on phone.`
+                    : 'Waiting for mobile uploads. Complete scans on your phone to unlock.'}
+                </div>
               )}
             </div>
           </div>
