@@ -48,8 +48,14 @@ public class SessionService {
     // ── 1. Validate access code → create session ──────────────────────────
 
     public SessionDTOs.ValidateCodeResponse validateCode(String code) {
-        AccessCode ac = accessCodeRepo.findByCode(code)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid access code"));
+        String raw = code != null ? code.trim() : "";
+        String clean = raw.replace("-", "");
+        String formatted = clean.length() == 9 ? clean.substring(0, 3) + "-" + clean.substring(3, 6) + "-" + clean.substring(6) : clean;
+
+        AccessCode ac = accessCodeRepo.findByCode(raw)
+                .or(() -> accessCodeRepo.findByCode(clean))
+                .or(() -> accessCodeRepo.findByCode(formatted))
+                .orElseThrow(() -> new IllegalArgumentException("Invalid access code: " + code));
 
         if (ac.isExpired())
             throw new IllegalStateException("Access code has expired");
